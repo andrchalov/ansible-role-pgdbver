@@ -1,0 +1,66 @@
+---
+- name: Create updates folder
+  file:
+    dest: "{{pgver_work_dir}}/updates"
+    state: directory
+
+- name: Create functional folder
+  file:
+    dest: "{{pgver_work_dir}}/functional"
+    state: directory
+
+- name: Synchronize updates
+  synchronize:
+    src: "{{pgver_updates_folder}}/"
+    dest: "{{pgver_work_dir}}/updates"
+    delete: yes
+    use_ssh_args: yes
+
+- name: Synchronize functional
+  synchronize:
+    src: "{{pgver_functional_folder}}/"
+    dest: "{{pgver_work_dir}}/functional"
+    delete: yes
+    use_ssh_args: yes
+  register: __pgver_functional
+
+- name: Get current db version
+  shell: >
+    PGPASSWORD="{{pgver_conn_password}}" \
+    psql -U {{pgver_conn_user}} -h {{pgver_conn_host}} -p {{pgver_conn_port}} -d {{pgver_db}} \
+       -v ON_ERROR_STOP=1 -qt \
+       -1 -c "SELECT pgver.get_version()"
+  register: __pgver_db_version
+  changed_when: false
+
+- name: Search new updates
+  set_fact:
+    __pgver_updates: "{{(__pgver_updates + [item|regex_replace('^.*update--([0-9]+)\\.sql$', '\\1')])|sort}}"
+  when: (item|regex_replace('^.*update--([0-9]+)\.sql$', '\\1')|int()) >= (__pgver_db_version.stdout|int())
+  with_fileglob:
+    - "{{pgver_updates_folder}}/update--[0-9]*.sql"
+
+- name: Create update script
+  template:
+    src: update.sql
+    dest: "{{pgver_work_dir}}/update.sql"
+  when: "__pgver_updates != [] or __pgver_functional | changed"
+
+- name: Check update file exists
+  stat:
+    path: "{{pgver_work_dir}}/update.sql"
+  register: __pgver_update_file
+
+- name: Deploy updates
+  shell: >
+    PGPASSWORD="{{pgver_conn_password}}" \
+    psql -U {{pgver_conn_user}} -h {{pgver_conn_host}} -p {{pgver_conn_port}} -d {{pgver_db}} \
+       -v ON_ERROR_STOP=1 -qt \
+       -1f {{pgver_work_dir}}/update.sql
+  when: __pgver_update_file.stat.exists
+  register: __pgver_deploy_update
+
+- name: Remove update file
+  file:
+    path: "{{pgver_work_dir}}/update.sql"
+    state: absent

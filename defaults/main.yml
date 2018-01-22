@@ -1,0 +1,9 @@
+---
+pgver_conn_user: postgres
+pgver_conn_host: localhost
+pgver_conn_port: 5432
+pgver_conn_password: ''
+
+pgver_work_dir: "{{ ansible_env.HOME }}/pgver"
+
+__pgver_updates: []

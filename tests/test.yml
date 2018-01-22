@@ -1,0 +1,45 @@
+---
+- hosts: all
+  pre_tasks:
+    - name: Run postgresql server
+      docker_container:
+        name: postgres
+        image: andrchalov/docker-postgres:latest
+        ports:
+          - 127.0.0.1:5432:5432
+        state: started
+
+    - name: Install apk packages
+      apk:
+        name: "{{item}}"
+        update_cache: true
+      with_items:
+        - postgresql-dev
+        - postgresql-client
+        - build-base
+        - python-dev
+        - rsync
+
+    - name: Install psycopg2
+      pip: name=psycopg2
+
+    - name: Ensure database exists
+      postgresql_db:
+        name: "testdb"
+        login_password: "123"
+        login_user: "postgres"
+        login_host: 127.0.0.1
+        state: "present"
+
+  roles:
+    - name: role_under_test
+      pgver_db: testdb
+      pgver_work_dir: /root
+      pgver_functional_folder: '../testdata/functional'
+      pgver_updates_folder: '../testdata/updates'
+
+      # pgver_databases:
+      #   - name: m4
+      #     dump_local_src: tmp/dump.sql
+      #     dump_remote_src: ~/dump.sql
+      #

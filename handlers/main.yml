@@ -1,0 +1,4 @@
+---
+- name: plan install
+  set_fact:
+    __pgver_install_needed: true

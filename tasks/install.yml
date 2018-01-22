@@ -1,0 +1,29 @@
+---
+- name: Check pgver installed
+  shell: >
+    PGPASSWORD="{{pgver_conn_password}}" \
+    psql -U {{pgver_conn_user}} -h {{pgver_conn_host}} -p {{pgver_conn_port}} -d {{pgver_db}} \
+      -v ON_ERROR_STOP=1 -qt \
+      -c "SELECT count(*) FROM information_schema.schemata WHERE schema_name = 'pgver'"
+  register: __pgver_check
+  changed_when: false
+
+- name: Copy pgver scripts
+  template:
+    src: "{{item}}"
+    dest: "{{pgver_work_dir}}/{{item}}"
+  with_items:
+    - install.sql
+    - drop_functional.sql
+    - deploy_functional.sql
+  notify: plan install
+
+- meta: flush_handlers
+
+- name: Install pgver
+  shell: >
+    PGPASSWORD="{{pgver_conn_password}}" \
+    psql -U {{pgver_conn_user}} -h {{pgver_conn_host}} -p {{pgver_conn_port}} -d {{pgver_db}} \
+       -v ON_ERROR_STOP=1 -qt \
+       -1f "{{pgver_work_dir}}/install.sql"
+  when: __pgver_check.stdout|int() == 0 or __pgver_install_needed | default(false)
