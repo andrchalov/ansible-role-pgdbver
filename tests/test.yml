@@ -34,12 +34,5 @@
   roles:
     - name: role_under_test
       pgver_db: testdb
-      pgver_work_dir: /root
       pgver_functional_folder: '../testdata/functional'
       pgver_updates_folder: '../testdata/updates'
-
-      # pgver_databases:
-      #   - name: m4
-      #     dump_local_src: tmp/dump.sql
-      #     dump_remote_src: ~/dump.sql
-      #

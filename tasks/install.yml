@@ -8,6 +8,12 @@
   register: __pgver_check
   changed_when: false
 
+- name: Create pgver work dir
+  file:
+    dest: "{{pgver_work_dir}}"
+    mode: "0700"
+    state: directory
+
 - name: Copy pgver scripts
   template:
     src: "{{item}}"
