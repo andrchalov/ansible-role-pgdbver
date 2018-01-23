@@ -36,3 +36,4 @@
       pgver_db: testdb
       pgver_functional_folder: '../testdata/functional'
       pgver_updates_folder: '../testdata/updates'
+      pgver_local_dump: '../testdata/dump/dump.gz'

@@ -1,0 +1,6 @@
+---
+- name: Create pgver work dir
+  file:
+    dest: "{{pgver_work_dir}}"
+    mode: "0700"
+    state: directory

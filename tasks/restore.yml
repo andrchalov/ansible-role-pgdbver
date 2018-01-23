@@ -1,0 +1,46 @@
+---
+- assert:
+    that: not pgver_local_dump is defined or not pgver_remote_dump is defined
+    msg: "Both pgver_local_dump and pgver_remote_dump is defined"
+
+- name: Check database contains tables
+  shell: >
+    PGPASSWORD="{{pgver_conn_password}}" \
+    psql -U {{pgver_conn_user}} -h {{pgver_conn_host}} -p {{pgver_conn_port}} -d {{pgver_db}} \
+      -qt -c "select count(*) from pg_tables where schemaname not in ('pg_catalog', 'information_schema')"
+  register: __db_tables_count
+  changed_when: false
+
+- block:
+  - name: Create dumps folder
+    file:
+      dest: "{{pgver_work_dir}}/dumps"
+      state: directory
+
+  - name: Copy database dump
+    copy:
+      src: "{{pgver_local_dump}}"
+      dest: "{{pgver_work_dir}}/dumps/{{pgver_db}}_{{pgver_local_dump|basename}}"
+    when: pgver_local_dump is defined
+
+  - set_fact:
+      __pgver_dump: "{{pgver_work_dir}}/dumps/{{pgver_db}}_{{pgver_local_dump|basename}}"
+    when: pgver_local_dump is defined
+
+  - set_fact:
+      __pgver_dump: "{{pgver_remote_dump}}"
+    when: pgver_remote_dump is defined
+
+  - name: Restore database from dump
+    shell: >
+      PGPASSWORD="{{pgver_conn_password}}" \
+      gunzip -c "{{__pgver_dump}}" | \
+      psql -U {{pgver_conn_user}} -h {{pgver_conn_host}} -p {{pgver_conn_port}} -d {{pgver_db}} -1qt
+    register: _deploy
+  when: __db_tables_count.stdout|int() == 0
+
+- name: Ensure remote copy of local dump file is removed
+  file:
+    dest: "{{pgver_work_dir}}/dumps/{{pgver_db}}_{{pgver_local_dump|basename}}"
+    state: absent
+  when: pgver_local_dump is defined

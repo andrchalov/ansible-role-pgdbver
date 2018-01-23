@@ -1,3 +1,8 @@
 ---
+- import_tasks: configure.yml
+
+- import_tasks: restore.yml
+  when: pgver_local_dump is defined or pgver_remote_dump is defined
+
 - import_tasks: install.yml
 - import_tasks: update.yml

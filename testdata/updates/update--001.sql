@@ -1,2 +1,2 @@
 
-ALTER TABLE test ADD COLUMN mo timestamp;
+ALTER TABLE test.test ADD COLUMN mo timestamp;

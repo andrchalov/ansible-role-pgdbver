@@ -1,4 +1,4 @@
 
-CREATE TABLE test (id int);
+CREATE TABLE test.test (id int);
 
-INSERT INTO test (id) SELECT generate_series(1, 100);
+INSERT INTO test.test (id) SELECT generate_series(1, 100);

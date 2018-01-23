@@ -13,7 +13,7 @@ $function$;
 
 CREATE TRIGGER test_trigger
   BEFORE INSERT OR UPDATE
-  ON test
+  ON test.test
   FOR EACH ROW
   EXECUTE PROCEDURE test_before_action();
 -------------------------------------------------------------------------------
