@@ -2,6 +2,8 @@
 -- PGVER update database script
 --
 
+BEGIN;
+
 \i {{pgver_work_dir}}/drop_functional.sql
 
 {% for item in __pgver_updates %}
@@ -19,3 +21,5 @@ SELECT pgver.bump_version({{item}});
 {#% endif %#}
 
 \i {{pgver_work_dir}}/deploy_functional.sql
+
+COMMIT;
