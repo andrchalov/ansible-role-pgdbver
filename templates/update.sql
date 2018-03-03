@@ -2,6 +2,8 @@
 -- PGVER update database script
 --
 
+SELECT pg_advisory_xact_lock_shared(0, 0);
+
 \i {{pgver_work_dir}}/drop_functional.sql
 
 {% for item in __pgver_updates %}
