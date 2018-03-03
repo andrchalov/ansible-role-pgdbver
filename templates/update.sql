@@ -2,6 +2,8 @@
 -- PGVER update database script
 --
 
+BEGIN;
+
 SELECT pg_advisory_xact_lock_shared(0, 0);
 
 \i {{pgver_work_dir}}/drop_functional.sql
@@ -21,3 +23,5 @@ SELECT pgver.bump_version({{item}});
 {#% endif %#}
 
 \i {{pgver_work_dir}}/deploy_functional.sql
+
+COMMIT;
