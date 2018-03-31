@@ -22,6 +22,7 @@
     dest: "{{pgver_work_dir}}/functional"
     delete: yes
     use_ssh_args: yes
+    copy_links: yes
   register: __pgver_functional
 
 - name: Get current db version
