@@ -4,7 +4,7 @@
 
 BEGIN;
 
-SELECT pg_advisory_xact_lock_shared(0, 0);
+SELECT pg_advisory_xact_lock(0, 0);
 
 \i {{pgver_work_dir}}/drop_functional.sql
 
