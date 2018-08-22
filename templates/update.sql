@@ -22,6 +22,8 @@ SELECT pgver.bump_version({{item}});
 
 {#% endif %#}
 
+\i {{pgver_work_dir}}/vars.sql
+
 \i {{pgver_work_dir}}/deploy_functional.sql
 
 COMMIT;

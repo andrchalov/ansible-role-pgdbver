@@ -25,6 +25,12 @@
     copy_links: yes
   register: __pgver_functional
 
+- name: Synchronize vars
+  template:
+    src: "vars.sql"
+    dest: "{{pgver_work_dir}}/vars.sql"
+  register: __pgver_vars
+
 - name: Get current db version
   shell: >
     PGPASSWORD="{{pgver_conn_password}}" \
@@ -45,7 +51,7 @@
   template:
     src: update.sql
     dest: "{{pgver_work_dir}}/update.sql"
-  when: "__pgver_updates != [] or __pgver_functional | changed"
+  when: "__pgver_updates != [] or __pgver_functional|changed or __pgver_vars|changed"
 
 - name: Check update file exists
   stat:

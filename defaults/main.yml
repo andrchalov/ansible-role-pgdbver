@@ -7,3 +7,5 @@ pgver_conn_password: ''
 pgver_work_dir: "{{ ansible_env.HOME }}/pgver"
 
 __pgver_updates: []
+
+pgver_vars:
