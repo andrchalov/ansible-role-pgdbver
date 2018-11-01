@@ -23,13 +23,8 @@
     - name: Install psycopg2
       pip: name=psycopg2
 
-<<<<<<< HEAD
     - shell: sleep 60
 
-=======
-    - shell: sleep 10
-    
->>>>>>> 43dca375e6e6efad490ee13da6ce227b0423b97c
     - name: Ensure database exists
       postgresql_db:
         name: "testdb"
