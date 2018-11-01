@@ -7,6 +7,7 @@
         image: andrchalov/docker-postgres:latest
         ports:
           - 127.0.0.1:5432:5432
+        command: "-c 'listen_addresses=*'"
         state: started
 
     - name: Install apk packages
@@ -23,12 +24,9 @@
     - name: Install psycopg2
       pip: name=psycopg2
 
-    - shell: sleep 60
-
     - name: Ensure database exists
       postgresql_db:
         name: "testdb"
-        login_password: "123"
         login_user: "postgres"
         login_host: 127.0.0.1
         state: "present"
@@ -38,4 +36,4 @@
       pgver_db: testdb
       pgver_functional_folder: '../testdata/functional'
       pgver_updates_folder: '../testdata/updates'
-      pgver_local_dump: '../testdata/dump/dump.gz'
+      pgver_local_dump: '../testdata/dump/dump.sql'
