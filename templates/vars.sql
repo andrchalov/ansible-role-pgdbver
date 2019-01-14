@@ -3,6 +3,7 @@
 --
 
 DROP FUNCTION IF EXISTS pgver.vars();
+DROP FUNCTION IF EXISTS pgver.vars_jsonb();
 DROP FUNCTION IF EXISTS pgver.var(variadic text[]);
 
 {% if pgver_vars %}
