@@ -22,7 +22,14 @@
     dest: "{{pgver_work_dir}}/functional"
     delete: yes
     use_ssh_args: yes
+    copy_links: yes
   register: __pgver_functional
+
+- name: Synchronize vars
+  template:
+    src: "vars.sql"
+    dest: "{{pgver_work_dir}}/vars.sql"
+  register: __pgver_vars
 
 - name: Get current db version
   shell: >
@@ -44,7 +51,7 @@
   template:
     src: update.sql
     dest: "{{pgver_work_dir}}/update.sql"
-  when: "__pgver_updates != [] or __pgver_functional | changed"
+  when: "__pgver_updates != [] or __pgver_functional|changed or __pgver_vars|changed"
 
 - name: Check update file exists
   stat:
@@ -56,7 +63,7 @@
     PGPASSWORD="{{pgver_conn_password}}" \
     psql -U {{pgver_conn_user}} -h {{pgver_conn_host}} -p {{pgver_conn_port}} -d {{pgver_db}} \
        -v ON_ERROR_STOP=1 -qt \
-       -1f {{pgver_work_dir}}/update.sql
+       -qt -f {{pgver_work_dir}}/update.sql
   when: __pgver_update_file.stat.exists
   register: __pgver_deploy_update
 

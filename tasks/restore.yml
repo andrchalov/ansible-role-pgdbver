@@ -34,8 +34,8 @@
   - name: Restore database from dump
     shell: >
       PGPASSWORD="{{pgver_conn_password}}" \
-      gunzip -c "{{__pgver_dump}}" | \
-      psql -U {{pgver_conn_user}} -h {{pgver_conn_host}} -p {{pgver_conn_port}} -d {{pgver_db}} -1qt
+      psql -U {{pgver_conn_user}} -h {{pgver_conn_host}} -p {{pgver_conn_port}} \
+        -d {{pgver_db}} -v ON_ERROR_STOP=1 -1qt -f {{__pgver_dump}}
     register: _deploy
   when: __db_tables_count.stdout|int() == 0
 
